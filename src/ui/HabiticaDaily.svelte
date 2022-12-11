@@ -8,12 +8,12 @@
 
 </script>
 
-    <div>
-        <input
-            type="checkbox"
-            on:click={async () => {
-                await onClickTask(todo, 'up');
-            }}
-        />
-        <strong>{todo.text}</strong>
-    </div>
+<div>
+    <input
+        type="checkbox"
+        on:click={async () => {
+            onClickTask(todo, 'up');
+        }}
+    />
+    <strong>{todo.text}</strong>
+</div>

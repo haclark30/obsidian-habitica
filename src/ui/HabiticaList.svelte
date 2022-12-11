@@ -9,11 +9,15 @@
     var tasks = api.getTasks(query.type);
 
     async function onClickTask(todo, direction) {
+        console.log(todo);
         if (
-            (direction == "up" && todo.up) ||
-            (direction == "down" && todo.down)
+            (todo.type == "habit" && direction == "up" && todo.up) ||
+            (todo.type == "habit" && direction == "down" && todo.down)
         ) {
             await api.scoreTask(todo.id, direction);
+            tasks = api.getTasks(query.type);
+        } else if (todo.type == "daily") {
+            await api.scoreTask(todo.id, "up");
             tasks = api.getTasks(query.type);
         }
     }
