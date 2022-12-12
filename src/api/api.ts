@@ -1,3 +1,5 @@
+import { renderResults } from "obsidian";
+import { writable, derived, Readable } from "svelte/store"
 import type { HabiticaTask } from "./models";
 
 export class HabiticaApi {
@@ -41,6 +43,14 @@ export class HabiticaApi {
         return await resp;
     }
 
+    async getAllTasks(): Promise<HabiticaTask[]> {
+        let url = "https://habitica.com/api/v3/tasks/user"
+        const result = await fetch(url, { headers: this.headers });
+
+        var resp = result.json().then((data) => data.data)
+        return resp
+    }
+
     async scoreTask(taskId: string, direction: string) {
         let url = `https://habitica.com/api/v3/tasks/${taskId}/score/${direction}`;
         console.log(url);
@@ -48,3 +58,31 @@ export class HabiticaApi {
         return await result.ok;
     }
 }
+
+function createCount() {
+    const { subscribe, set, update } = writable([])
+
+    return {
+        subscribe,
+        getTasks: (api: HabiticaApi) => api.getAllTasks().then((tasks) => set(tasks)),
+        reset: () => set([])
+    };
+}
+
+export const count = createCount();
+
+export const habits: Readable<HabiticaTask[]> = derived(count, ($tasks) => {
+    return $tasks.filter((task) => {
+        if (task.type == "habit") {
+            return task
+        }
+    })
+});
+
+export const dailys: Readable<HabiticaTask[]> = derived(count, ($tasks) => {
+    return $tasks.filter((task) => {
+        if (task.type == "daily" && task.isDue && !task.completed) {
+            return task
+        }
+    })
+});

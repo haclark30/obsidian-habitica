@@ -1,5 +1,5 @@
 import { App, Modal, Notice, Plugin, PluginManifest, PluginSettingTab, Setting } from 'obsidian';
-import { HabiticaApi } from './api/api';
+import { count, HabiticaApi } from './api/api';
 import QueryInjector from './queryInjector';
 
 interface MyPluginSettings {
@@ -34,6 +34,7 @@ export default class HabiticaPlugin extends Plugin {
 
 		this.api = new HabiticaApi(this.settings.habiticaUserKey, this.settings.habiticaApiKey)
 		this.queryInjector.setApi(this.api)
+		setInterval(() => count.getTasks(this.api), 30000)
 
 		this.addRibbonIcon('dice', 'Sample Plugin', () => {
 			new Notice('This is a notice!');
@@ -87,12 +88,12 @@ class SampleModal extends Modal {
 	}
 
 	onOpen() {
-		let {contentEl} = this;
+		let { contentEl } = this;
 		contentEl.setText('Woah!');
 	}
 
 	onClose() {
-		let {contentEl} = this;
+		let { contentEl } = this;
 		contentEl.empty();
 	}
 }
@@ -106,11 +107,11 @@ class SampleSettingTab extends PluginSettingTab {
 	}
 
 	display(): void {
-		let {containerEl} = this;
+		let { containerEl } = this;
 
 		containerEl.empty();
 
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
+		containerEl.createEl('h2', { text: 'Settings for my awesome plugin.' });
 
 		new Setting(containerEl)
 			.setName('Habitica User Key')
@@ -123,17 +124,17 @@ class SampleSettingTab extends PluginSettingTab {
 					this.plugin.settings.habiticaUserKey = value;
 					await this.plugin.saveSettings();
 				}));
-		
+
 		new Setting(containerEl)
-		.setName('Habitica API Key')
-		.setDesc('It\'s a secret')
-		.addText(text => text
-			.setPlaceholder('Enter your secret')
-			.setValue('')
-			.onChange(async (value) => {
-				console.log('Secret: ' + value);
-				this.plugin.settings.habiticaApiKey = value;
-				await this.plugin.saveSettings();
-			}));
+			.setName('Habitica API Key')
+			.setDesc('It\'s a secret')
+			.addText(text => text
+				.setPlaceholder('Enter your secret')
+				.setValue('')
+				.onChange(async (value) => {
+					console.log('Secret: ' + value);
+					this.plugin.settings.habiticaApiKey = value;
+					await this.plugin.saveSettings();
+				}));
 	}
 }

@@ -3,22 +3,25 @@
     import type { Query } from "../query";
     import HabiticaDaily from "./HabiticaDaily.svelte";
     import HabiticaHabit from "./HabiticaHabit.svelte";
+    import { count, habits, dailys } from "../api/api";
+    import { onMount } from "svelte";
+    import type { HabiticaTask } from "../api/models";
+
     export let query: Query;
     export let api: HabiticaApi;
 
-    var tasks = api.getTasks(query.type);
+    count.getTasks(api);
 
-    async function onClickTask(todo, direction) {
-        console.log(todo);
+    async function onClickTask(todo: HabiticaTask, direction: string) {
         if (
             (todo.type == "habit" && direction == "up" && todo.up) ||
             (todo.type == "habit" && direction == "down" && todo.down)
         ) {
-            await api.scoreTask(todo.id, direction);
-            tasks = api.getTasks(query.type);
+            api.scoreTask(todo.id, direction);
+            count.getTasks(api);
         } else if (todo.type == "daily") {
-            await api.scoreTask(todo.id, "up");
-            tasks = api.getTasks(query.type);
+            api.scoreTask(todo.id, "up");
+            count.getTasks(api);
         }
     }
 
@@ -28,7 +31,7 @@
 <button
     class="habitica-refresh-button"
     on:click={async () => {
-        tasks = api.getTasks(query.type);
+        count.getTasks(api);
     }}
 >
     <svg
@@ -46,24 +49,20 @@
     </svg>
 </button>
 
-{#await tasks}
-    <p>...waiting</p>
-{:then tasks}
-    {#if tasks.length > 0}
-        <div class="habitica-list">
-            {#each tasks as todo}
-                {#if todo.type == 'habit'}
-                    <HabiticaHabit {todo} {onClickTask} />
-                {/if}
-                {#if todo.type == 'daily'}
-                    <HabiticaDaily {todo} {onClickTask} />
-                {/if}
-            {/each}
-        </div>
-    {:else}
-        <p>no dailies are due</p>
+<div class="habitica-list">
+    {#if query.type == 'habits'}
+        {#each $habits as todo}
+            <HabiticaHabit {todo} {onClickTask} />
+        {/each}
     {/if}
-{/await}
+    {#if query.type == 'dailys'}
+        {#if $dailys.length > 0}
+            {#each $dailys as todo}
+                <HabiticaDaily {todo} {onClickTask} />
+            {/each}
+        {:else}<strong>No dailies due!</strong>{/if}
+    {/if}
+</div>
 
 <style>
     .habitica-query-title {

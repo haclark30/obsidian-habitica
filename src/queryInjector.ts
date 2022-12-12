@@ -1,5 +1,5 @@
 import { App, MarkdownPostProcessorContext, MarkdownRenderChild } from "obsidian";
-import type SvelteComponentDev from "./ui/HabiticaDailiesList.svelte"
+import type SvelteComponentDev from "./ui/HabiticaList.svelte"
 import type { HabiticaApi } from "./api/api";
 import type { Query } from "./query";
 import HabiticaList from "./ui/HabiticaList.svelte";
